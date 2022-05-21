@@ -53,7 +53,16 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    //Setters/Getters for audio parameters 
+    void setLPF0 (float _freq, float _q);
+    
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DigitalDJAudioProcessor)
+    
+    //Audio Parameters:
+    juce::AudioParameterFloat* lowPassCutoff0;
+    juce::AudioParameterFloat* lowPassQ0;
+    
+    //instantiate process duplicator
 };
