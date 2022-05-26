@@ -11,7 +11,9 @@
 
 //==============================================================================
 DigitalDJAudioProcessorEditor::DigitalDJAudioProcessorEditor (DigitalDJAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+    : AudioProcessorEditor (&p), audioProcessor (p),
+    lowPassFreq0Attachment(audioProcessor.apvts, "lowPassCutoff0", lowPassFreq0Slider),
+    lowPassQ0Attachment(audioProcessor.apvts, "lowPassQ0", lowPassQ0Slider)
 {
     //instantiation of sliders and corresponding labels
     //low pass filter cut off frequency
@@ -63,12 +65,10 @@ void DigitalDJAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
 {
     if (slider == &lowPassFreq0Slider)
     {
-        DBG("Low Pass Freq updated to " << slider->getValue() << "Hz");
-        audioProcessor.setLPF0(slider->getValue(), lowPassQ0Slider.getValue());
+        DBG("Low Pass Freq updated to " << audioProcessor.apvts.getRawParameterValue("lowPassCutoff0")->load() << "Hz");
     }
     else if (slider == &lowPassQ0Slider)
     {
-        DBG("Low Pass Q updated to " << slider->getValue());
-        audioProcessor.setLPF0(lowPassFreq0Slider.getValue(), slider->getValue());
+        DBG("Low Pass Q updated to " << audioProcessor.apvts.getRawParameterValue("lowPassQ0")->load());
     }
 }

@@ -53,16 +53,15 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    //Setters/Getters for audio parameters 
-    void setLPF0 (float _freq, float _q);
+    //APVTS used to set/get parameters between editor and processor
+    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    juce::AudioProcessorValueTreeState apvts;
     
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DigitalDJAudioProcessor)
-    
-    //Audio Parameters:
-    juce::AudioParameterFloat* lowPassCutoff0;
-    juce::AudioParameterFloat* lowPassQ0;
+
+    //juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients <float>> lowPassFilter0;
     
     //instantiate process duplicator
 };

@@ -19,18 +19,10 @@ DigitalDJAudioProcessor::DigitalDJAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), apvts(*this, nullptr, "Parameters", createParameterLayout())//,
+                          //lowPassFilter0(juce::dsp::IIR::Coefficients<float>::makeLowPass(11400, 20.f, 1.f))
 #endif
 {
-    addParameter(lowPassCutoff0 = new juce::AudioParameterFloat("lowPassCutoff0",
-                                                                "lowPassCutoff0",
-                                                                juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.5f),
-                                                                20.f));
-    
-    addParameter(lowPassQ0 = new juce::AudioParameterFloat("lowPassQ0",
-                                                           "lowPassQ0",
-                                                           juce::NormalisableRange<float>(0.1f, 10.f, 1.f, 0.5f),
-                                                           1.f));
 }
 
 DigitalDJAudioProcessor::~DigitalDJAudioProcessor()
@@ -99,10 +91,30 @@ void DigitalDJAudioProcessor::changeProgramName (int index, const juce::String& 
 {
 }
 
+juce::AudioProcessorValueTreeState::ParameterLayout DigitalDJAudioProcessor::createParameterLayout()
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+    
+    layout.add(std::make_unique<juce::AudioParameterFloat> ("lowPassCutoff0",
+                                                            "lowPassCutoff0",
+                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.5f),
+                                                            20.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat> ("lowPassQ0",
+                                                            "lowPassQ0",
+                                                            juce::NormalisableRange<float>(0.1f, 10.f, 0.1f, 0.5f),
+                                                            1.f));
+    
+    return layout;
+}
+
+
 //==============================================================================
 void DigitalDJAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    //create Spec here
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.numChannels = 1;
+    spec.maximumBlockSize = samplesPerBlock;
 }
 
 void DigitalDJAudioProcessor::releaseResources()
@@ -146,7 +158,9 @@ void DigitalDJAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    //create buffer here
+    //Creates an AudioBlock that points to the data in an AudioBuffer (in this case, the buffer arg)
+    juce::dsp::AudioBlock<float> block (buffer);
+    //lowPassFilter0.process(juce::dsp::ProcessContextReplacing<float>(block));
 }
 
 //==============================================================================
@@ -163,15 +177,12 @@ juce::AudioProcessorEditor* DigitalDJAudioProcessor::createEditor()
 //==============================================================================
 void DigitalDJAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    //store audio parameter values
-    juce::MemoryOutputStream (destData, true).writeFloat (*lowPassCutoff0);
-    juce::MemoryOutputStream (destData, true).writeFloat (*lowPassQ0);
+    //TODO
 }
 
 void DigitalDJAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    *lowPassCutoff0 = juce::MemoryInputStream (data, static_cast<size_t> (sizeInBytes), false).readFloat();
-    *lowPassQ0 = juce::MemoryInputStream (data, static_cast<size_t> (sizeInBytes), false).readFloat();
+    //TODO
 }
 
 //==============================================================================
@@ -180,12 +191,3 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new DigitalDJAudioProcessor();
 }
-
-//call to update audio parameters
-void DigitalDJAudioProcessor::setLPF0(float _freq, float _q)
-{
-    *lowPassCutoff0 = _freq;
-    *lowPassQ0 = _q;
-    DBG("Got updated LPF0 values: freq " << lowPassCutoff0->get() << " Q " << lowPassQ0->get());
-}
-

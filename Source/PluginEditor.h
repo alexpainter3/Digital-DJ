@@ -36,6 +36,9 @@ private:
     juce::Label  lowPassFreq0Label;
     juce::Slider lowPassQ0Slider;
     juce::Label  lowPassQ0Label;
-
+    
+    juce::AudioProcessorValueTreeState::SliderAttachment lowPassFreq0Attachment;
+    juce::AudioProcessorValueTreeState::SliderAttachment lowPassQ0Attachment;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DigitalDJAudioProcessorEditor)
 };
