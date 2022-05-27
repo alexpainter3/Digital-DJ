@@ -21,7 +21,7 @@ DigitalDJAudioProcessorEditor::DigitalDJAudioProcessorEditor (DigitalDJAudioProc
     lowPassFreq0Slider.setRange (20.f, 20000.f);
     lowPassFreq0Slider.setTextValueSuffix (" Hz");
     lowPassFreq0Slider.addListener (this);
-    lowPassFreq0Slider.setValue(20.f);
+    lowPassFreq0Slider.setValue(audioProcessor.apvts.getRawParameterValue("lowPassCutoff0")->load());
     
     addAndMakeVisible(lowPassFreq0Label);
     lowPassFreq0Label.setText("Frequency", juce::dontSendNotification);
@@ -32,7 +32,7 @@ DigitalDJAudioProcessorEditor::DigitalDJAudioProcessorEditor (DigitalDJAudioProc
     lowPassQ0Slider.setRange (0.1f, 10.f);
     lowPassQ0Slider.setTextValueSuffix ("Hz/Hz");
     lowPassQ0Slider.addListener (this);
-    lowPassQ0Slider.setValue(1.f);
+    lowPassQ0Slider.setValue(audioProcessor.apvts.getRawParameterValue("lowPassQ0")->load());
     
     addAndMakeVisible(lowPassQ0Label);
     lowPassQ0Label.setText("Resonance", juce::dontSendNotification);

@@ -98,7 +98,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout DigitalDJAudioProcessor::cre
     layout.add(std::make_unique<juce::AudioParameterFloat> ("lowPassCutoff0",
                                                             "lowPassCutoff0",
                                                             juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.5f),
-                                                            20.f));
+                                                            20000.f));
     layout.add(std::make_unique<juce::AudioParameterFloat> ("lowPassQ0",
                                                             "lowPassQ0",
                                                             juce::NormalisableRange<float>(0.1f, 10.f, 0.1f, 0.5f),
@@ -171,6 +171,15 @@ void DigitalDJAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+    //update filter coefficients
+    //first, create the coefficients using the current apvts settings
+    juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass0Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(),
+                                                         apvts.getRawParameterValue("lowPassCutoff0")->load(),
+                                                         apvts.getRawParameterValue("lowPassQ0")->load());
+    //then, pass these coefficients to each audio channel
+    *leftChain.get<0>().coefficients = *lowPass0Coefficients;
+    *rightChain.get<0>().coefficients = *lowPass0Coefficients;
+    
     //Creates an AudioBlock that points to the data in an AudioBuffer (in this case, the buffer arg)
     juce::dsp::AudioBlock<float> block (buffer);
     juce::dsp::AudioBlock<float> leftBlock = block.getSingleChannelBlock(0);
@@ -183,15 +192,6 @@ void DigitalDJAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     //pass contexts to the chains
     leftChain.process(leftContext);
     rightChain.process(rightContext);
-    
-    //update filter coefficients
-    //first, create the coefficients using the current apvts settings
-    juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass0Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(),
-                                                         apvts.getRawParameterValue("lowPassCutoff0")->load(),
-                                                         apvts.getRawParameterValue("lowPassQ0")->load());
-    //then, pass these coefficients to each audio channel
-    *leftChain.get<0>().coefficients = *lowPass0Coefficients;
-    *rightChain.get<0>().coefficients = *lowPass0Coefficients;
 }
 
 //==============================================================================
@@ -208,12 +208,38 @@ juce::AudioProcessorEditor* DigitalDJAudioProcessor::createEditor()
 //==============================================================================
 void DigitalDJAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    //TODO
+    // You should use this method to store your parameters in the memory block.
+    // You could do that either as raw data, or use the XML or ValueTree classes
+    // as intermediaries to make it easy to save and load complex data.
+    
+    DBG("Writing current apvts state to memory");
+    juce::MemoryOutputStream mos(destData, true);
+    apvts.state.writeToStream(mos);
 }
 
 void DigitalDJAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    //TODO
+    // You should use this method to restore your parameters from this memory block,
+    // whose contents will have been created by the getStateInformation() call.
+    
+    juce::ValueTree tree = juce::ValueTree::readFromData(data, sizeInBytes);
+    if (tree.isValid())
+    {
+        DBG("VALID TREE - Updating tree state");
+        apvts.replaceState(tree);
+        //update filter coefficients
+        //first, create the coefficients using the current apvts settings
+        juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass0Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(),
+                                                             apvts.getRawParameterValue("lowPassCutoff0")->load(),
+                                                             apvts.getRawParameterValue("lowPassQ0")->load());
+        //then, pass these coefficients to each audio channel
+        *leftChain.get<0>().coefficients = *lowPass0Coefficients;
+        *rightChain.get<0>().coefficients = *lowPass0Coefficients;
+    }
+    else
+    {
+        DBG("INVALID TREE - NOT Updating tree state");
+    }
 }
 
 //==============================================================================
