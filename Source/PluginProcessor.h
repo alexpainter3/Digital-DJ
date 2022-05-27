@@ -58,6 +58,16 @@ public:
     juce::AudioProcessorValueTreeState apvts;
     
 private:
+    using Filter = juce::dsp::IIR::Filter<float>;
+    
+    //chain together filters so that a single process call to the chain can
+    //iteratively process the audio through each chain element
+    using FilterChain = juce::dsp::ProcessorChain<Filter>;
+    
+    //one filter chain per audio channel
+    FilterChain leftChain;
+    FilterChain rightChain;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DigitalDJAudioProcessor)
 

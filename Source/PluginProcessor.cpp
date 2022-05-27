@@ -115,6 +115,19 @@ void DigitalDJAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBl
     spec.sampleRate = sampleRate;
     spec.numChannels = 1;
     spec.maximumBlockSize = samplesPerBlock;
+    
+    //pass the spec to both Filter Chains
+    leftChain.prepare(spec);
+    rightChain.prepare(spec);
+    
+    //initialize filter coefficients
+    //first, create the coefficients using the initial apvts settings
+    juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass0Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate,
+                                                         apvts.getRawParameterValue("lowPassCutoff0")->load(),
+                                                         apvts.getRawParameterValue("lowPassQ0")->load());
+    //then, pass these coefficients to each audio channel
+    *leftChain.get<0>().coefficients = *lowPass0Coefficients;
+    *rightChain.get<0>().coefficients = *lowPass0Coefficients;
 }
 
 void DigitalDJAudioProcessor::releaseResources()
@@ -160,7 +173,25 @@ void DigitalDJAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
 
     //Creates an AudioBlock that points to the data in an AudioBuffer (in this case, the buffer arg)
     juce::dsp::AudioBlock<float> block (buffer);
-    //lowPassFilter0.process(juce::dsp::ProcessContextReplacing<float>(block));
+    juce::dsp::AudioBlock<float> leftBlock = block.getSingleChannelBlock(0);
+    juce::dsp::AudioBlock<float>  rightBlock = block.getSingleChannelBlock(1);
+    
+    //wrap Audio Blocks with a Context that the chain will be able to use
+    juce::dsp::ProcessContextReplacing<float> leftContext(leftBlock);
+    juce::dsp::ProcessContextReplacing<float> rightContext(rightBlock);
+    
+    //pass contexts to the chains
+    leftChain.process(leftContext);
+    rightChain.process(rightContext);
+    
+    //update filter coefficients
+    //first, create the coefficients using the current apvts settings
+    juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass0Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(),
+                                                         apvts.getRawParameterValue("lowPassCutoff0")->load(),
+                                                         apvts.getRawParameterValue("lowPassQ0")->load());
+    //then, pass these coefficients to each audio channel
+    *leftChain.get<0>().coefficients = *lowPass0Coefficients;
+    *rightChain.get<0>().coefficients = *lowPass0Coefficients;
 }
 
 //==============================================================================
