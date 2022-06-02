@@ -27,8 +27,10 @@ public:
     void sliderValueChanged (juce::Slider* slider) override;
 
 private:
-    void createCutoffFreqSlider(juce::Slider* slider, juce::String paramName);
-    
+    void createCutoffFreqSlider(juce::Slider* slider, juce::String paramName, juce::Label* label, juce::String labelString);
+    void createResonanceSlider(juce::Slider* slider, juce::String paramName, juce::Label* label, juce::String labelString);
+    void createLabel(juce::Label* label, juce::Slider* slider, juce::String labelString);
+
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     DigitalDJAudioProcessor& audioProcessor;

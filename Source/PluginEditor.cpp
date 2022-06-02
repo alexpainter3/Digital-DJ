@@ -22,98 +22,17 @@ DigitalDJAudioProcessorEditor::DigitalDJAudioProcessorEditor (DigitalDJAudioProc
     lowPassQ3Attachment(audioProcessor.apvts, "lowPassQ3", lowPassQ3Slider)
 {
     //instantiation of sliders and corresponding labels
-    //low pass filter cut off frequency
-    //addAndMakeVisible(lowPassFreq0Slider);
-    createCutoffFreqSlider(&lowPassFreq0Slider, "lowPassCutoff0");
-    //addAndMakeVisible(lowPassFreq1Slider);
-    createCutoffFreqSlider(&lowPassFreq1Slider, "lowPassCutoff1");
-    //addAndMakeVisible(lowPassFreq2Slider);
-    createCutoffFreqSlider(&lowPassFreq2Slider, "lowPassCutoff2");
-    //addAndMakeVisible(lowPassFreq3Slider);
-    createCutoffFreqSlider(&lowPassFreq3Slider, "lowPassCutoff3");
-    
-    /*addAndMakeVisible(lowPassFreq0Slider);
-    lowPassFreq0Slider.setRange (20.f, 20000.f);
-    lowPassFreq0Slider.setTextValueSuffix (" Hz");
-    lowPassFreq0Slider.addListener (this);
-    lowPassFreq0Slider.setValue(audioProcessor.apvts.getRawParameterValue("lowPassCutoff0")->load());
-    
-    addAndMakeVisible(lowPassFreq1Slider);
-    lowPassFreq1Slider.setRange (20.f, 20000.f);
-    lowPassFreq1Slider.setTextValueSuffix (" Hz");
-    lowPassFreq1Slider.addListener (this);
-    lowPassFreq1Slider.setValue(audioProcessor.apvts.getRawParameterValue("lowPassCutoff1")->load());
-    
-    addAndMakeVisible(lowPassFreq2Slider);
-    lowPassFreq2Slider.setRange (20.f, 20000.f);
-    lowPassFreq2Slider.setTextValueSuffix (" Hz");
-    lowPassFreq2Slider.addListener (this);
-    lowPassFreq2Slider.setValue(audioProcessor.apvts.getRawParameterValue("lowPassCutoff2")->load());
-    
-    addAndMakeVisible(lowPassFreq3Slider);
-    lowPassFreq3Slider.setRange (20.f, 20000.f);
-    lowPassFreq3Slider.setTextValueSuffix (" Hz");
-    lowPassFreq3Slider.addListener (this);
-    lowPassFreq3Slider.setValue(audioProcessor.apvts.getRawParameterValue("lowPassCutoff3")->load());*/
-    
-    //cut off frequency label
-    addAndMakeVisible(lowPassFreq0Label);
-    lowPassFreq0Label.setText("Frequency", juce::dontSendNotification);
-    lowPassFreq0Label.attachToComponent(&lowPassFreq0Slider, true);
-    
-    addAndMakeVisible(lowPassFreq1Label);
-    lowPassFreq1Label.setText("Frequency", juce::dontSendNotification);
-    lowPassFreq1Label.attachToComponent(&lowPassFreq1Slider, true);
-    
-    addAndMakeVisible(lowPassFreq2Label);
-    lowPassFreq2Label.setText("Frequency", juce::dontSendNotification);
-    lowPassFreq2Label.attachToComponent(&lowPassFreq2Slider, true);
-    
-    addAndMakeVisible(lowPassFreq3Label);
-    lowPassFreq3Label.setText("Frequency", juce::dontSendNotification);
-    lowPassFreq3Label.attachToComponent(&lowPassFreq3Slider, true);
-    
-    //low pass filter resonance
-    addAndMakeVisible(lowPassQ0Slider);
-    lowPassQ0Slider.setRange (0.1f, 10.f);
-    lowPassQ0Slider.setTextValueSuffix ("Hz/Hz");
-    lowPassQ0Slider.addListener (this);
-    lowPassQ0Slider.setValue(audioProcessor.apvts.getRawParameterValue("lowPassQ0")->load());
-    
-    addAndMakeVisible(lowPassQ1Slider);
-    lowPassQ1Slider.setRange (0.1f, 10.f);
-    lowPassQ1Slider.setTextValueSuffix ("Hz/Hz");
-    lowPassQ1Slider.addListener (this);
-    lowPassQ1Slider.setValue(audioProcessor.apvts.getRawParameterValue("lowPassQ1")->load());
-    
-    addAndMakeVisible(lowPassQ2Slider);
-    lowPassQ2Slider.setRange (0.1f, 10.f);
-    lowPassQ2Slider.setTextValueSuffix ("Hz/Hz");
-    lowPassQ2Slider.addListener (this);
-    lowPassQ2Slider.setValue(audioProcessor.apvts.getRawParameterValue("lowPassQ2")->load());
-    
-    addAndMakeVisible(lowPassQ3Slider);
-    lowPassQ3Slider.setRange (0.1f, 10.f);
-    lowPassQ3Slider.setTextValueSuffix ("Hz/Hz");
-    lowPassQ3Slider.addListener (this);
-    lowPassQ3Slider.setValue(audioProcessor.apvts.getRawParameterValue("lowPassQ3")->load());
-    
-    //resonance label
-    addAndMakeVisible(lowPassQ0Label);
-    lowPassQ0Label.setText("Resonance", juce::dontSendNotification);
-    lowPassQ0Label.attachToComponent(&lowPassQ0Slider, true);
-    
-    addAndMakeVisible(lowPassQ1Label);
-    lowPassQ1Label.setText("Resonance", juce::dontSendNotification);
-    lowPassQ1Label.attachToComponent(&lowPassQ1Slider, true);
-    
-    addAndMakeVisible(lowPassQ2Label);
-    lowPassQ2Label.setText("Resonance", juce::dontSendNotification);
-    lowPassQ2Label.attachToComponent(&lowPassQ2Slider, true);
-    
-    addAndMakeVisible(lowPassQ3Label);
-    lowPassQ3Label.setText("Resonance", juce::dontSendNotification);
-    lowPassQ3Label.attachToComponent(&lowPassQ3Slider, true);
+    //low pass filter cut off frequency sliders + labels
+    createCutoffFreqSlider(&lowPassFreq0Slider, "lowPassCutoff0", &lowPassFreq0Label, "Frequency 0:");
+    createCutoffFreqSlider(&lowPassFreq1Slider, "lowPassCutoff1", &lowPassFreq1Label, "Frequency 1:");
+    createCutoffFreqSlider(&lowPassFreq2Slider, "lowPassCutoff2", &lowPassFreq2Label, "Frequency 2:");
+    createCutoffFreqSlider(&lowPassFreq3Slider, "lowPassCutoff3", &lowPassFreq3Label, "Frequency 3:");
+
+    //low pass filter resonance sliders + labels
+    createResonanceSlider(&lowPassQ0Slider, "lowPassQ0", &lowPassQ0Label, "Resonance 0:");
+    createResonanceSlider(&lowPassQ1Slider, "lowPassQ1", &lowPassQ1Label, "Resonance 1:");
+    createResonanceSlider(&lowPassQ2Slider, "lowPassQ2", &lowPassQ2Label, "Resonance 2:");
+    createResonanceSlider(&lowPassQ3Slider, "lowPassQ3", &lowPassQ3Label, "Resonance 3:");
     
     //set the size of the GUI (width, height)
     setSize (600, 500);
@@ -181,11 +100,33 @@ void DigitalDJAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
     }
 }
 
-void DigitalDJAudioProcessorEditor::createCutoffFreqSlider (juce::Slider* slider, juce::String paramName)
+void DigitalDJAudioProcessorEditor::createCutoffFreqSlider (juce::Slider* slider, juce::String paramName, juce::Label* label, juce::String labelString)
 {
     addAndMakeVisible(*slider);
     slider->setRange (20.f, 20000.f);
     slider->setTextValueSuffix (" Hz");
     slider->addListener (this);
     slider->setValue(audioProcessor.apvts.getRawParameterValue(paramName)->load());
+    
+    //create and attach a label to the slider
+    createLabel(label, slider, labelString);
+}
+
+void DigitalDJAudioProcessorEditor::createResonanceSlider(juce::Slider* slider, juce::String paramName, juce::Label* label, juce::String labelString)
+{
+    addAndMakeVisible(*slider);
+    slider->setRange (0.1f, 10.f);
+    slider->setTextValueSuffix ("Hz/Hz");
+    slider->addListener (this);
+    slider->setValue(audioProcessor.apvts.getRawParameterValue(paramName)->load());
+    
+    //create and attach a label to the slider
+    createLabel(label, slider, labelString);
+}
+
+void DigitalDJAudioProcessorEditor::createLabel(juce::Label* label, juce::Slider* slider, juce::String labelString)
+{
+    addAndMakeVisible(*label);
+    label->setText(labelString, juce::dontSendNotification);
+    label->attachToComponent(slider, true);
 }
