@@ -95,12 +95,37 @@ juce::AudioProcessorValueTreeState::ParameterLayout DigitalDJAudioProcessor::cre
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
     
+    //Create parameters for lowpass filters and add to Parameter Layout that is passed to the apvts
     layout.add(std::make_unique<juce::AudioParameterFloat> ("lowPassCutoff0",
                                                             "lowPassCutoff0",
                                                             juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.5f),
                                                             20000.f));
     layout.add(std::make_unique<juce::AudioParameterFloat> ("lowPassQ0",
                                                             "lowPassQ0",
+                                                            juce::NormalisableRange<float>(0.1f, 10.f, 0.1f, 0.5f),
+                                                            1.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat> ("lowPassCutoff1",
+                                                            "lowPassCutoff1",
+                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.5f),
+                                                            20000.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat> ("lowPassQ1",
+                                                            "lowPassQ1",
+                                                            juce::NormalisableRange<float>(0.1f, 10.f, 0.1f, 0.5f),
+                                                            1.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat> ("lowPassCutoff2",
+                                                            "lowPassCutoff2",
+                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.5f),
+                                                            20000.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat> ("lowPassQ2",
+                                                            "lowPassQ2",
+                                                            juce::NormalisableRange<float>(0.1f, 10.f, 0.1f, 0.5f),
+                                                            1.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat> ("lowPassCutoff3",
+                                                            "lowPassCutoff3",
+                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.5f),
+                                                            20000.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat> ("lowPassQ3",
+                                                            "lowPassQ3",
                                                             juce::NormalisableRange<float>(0.1f, 10.f, 0.1f, 0.5f),
                                                             1.f));
     
@@ -120,14 +145,30 @@ void DigitalDJAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBl
     leftChain.prepare(spec);
     rightChain.prepare(spec);
     
+    //TODO - refactor repeated code
     //initialize filter coefficients
     //first, create the coefficients using the initial apvts settings
     juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass0Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate,
                                                          apvts.getRawParameterValue("lowPassCutoff0")->load(),
                                                          apvts.getRawParameterValue("lowPassQ0")->load());
+    juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass1Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate,
+                                                         apvts.getRawParameterValue("lowPassCutoff1")->load(),
+                                                         apvts.getRawParameterValue("lowPassQ1")->load());
+    juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass2Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate,
+                                                         apvts.getRawParameterValue("lowPassCutoff2")->load(),
+                                                         apvts.getRawParameterValue("lowPassQ2")->load());
+    juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass3Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate,
+                                                         apvts.getRawParameterValue("lowPassCutoff3")->load(),
+                                                         apvts.getRawParameterValue("lowPassQ3")->load());
     //then, pass these coefficients to each audio channel
     *leftChain.get<0>().coefficients = *lowPass0Coefficients;
     *rightChain.get<0>().coefficients = *lowPass0Coefficients;
+    *leftChain.get<1>().coefficients = *lowPass1Coefficients;
+    *rightChain.get<1>().coefficients = *lowPass1Coefficients;
+    *leftChain.get<2>().coefficients = *lowPass2Coefficients;
+    *rightChain.get<2>().coefficients = *lowPass2Coefficients;
+    *leftChain.get<3>().coefficients = *lowPass3Coefficients;
+    *rightChain.get<3>().coefficients = *lowPass3Coefficients;
 }
 
 void DigitalDJAudioProcessor::releaseResources()
@@ -176,14 +217,29 @@ void DigitalDJAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, ju
     juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass0Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(),
                                                          apvts.getRawParameterValue("lowPassCutoff0")->load(),
                                                          apvts.getRawParameterValue("lowPassQ0")->load());
+    juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass1Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(),
+                                                         apvts.getRawParameterValue("lowPassCutoff1")->load(),
+                                                         apvts.getRawParameterValue("lowPassQ1")->load());
+    juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass2Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(),
+                                                         apvts.getRawParameterValue("lowPassCutoff2")->load(),
+                                                         apvts.getRawParameterValue("lowPassQ2")->load());
+    juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass3Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(),
+                                                         apvts.getRawParameterValue("lowPassCutoff3")->load(),
+                                                         apvts.getRawParameterValue("lowPassQ3")->load());
     //then, pass these coefficients to each audio channel
     *leftChain.get<0>().coefficients = *lowPass0Coefficients;
     *rightChain.get<0>().coefficients = *lowPass0Coefficients;
+    *leftChain.get<1>().coefficients = *lowPass1Coefficients;
+    *rightChain.get<1>().coefficients = *lowPass1Coefficients;
+    *leftChain.get<2>().coefficients = *lowPass2Coefficients;
+    *rightChain.get<2>().coefficients = *lowPass2Coefficients;
+    *leftChain.get<3>().coefficients = *lowPass3Coefficients;
+    *rightChain.get<3>().coefficients = *lowPass3Coefficients;
     
     //Creates an AudioBlock that points to the data in an AudioBuffer (in this case, the buffer arg)
     juce::dsp::AudioBlock<float> block (buffer);
     juce::dsp::AudioBlock<float> leftBlock = block.getSingleChannelBlock(0);
-    juce::dsp::AudioBlock<float>  rightBlock = block.getSingleChannelBlock(1);
+    juce::dsp::AudioBlock<float> rightBlock = block.getSingleChannelBlock(1);
     
     //wrap Audio Blocks with a Context that the chain will be able to use
     juce::dsp::ProcessContextReplacing<float> leftContext(leftBlock);
@@ -232,9 +288,24 @@ void DigitalDJAudioProcessor::setStateInformation (const void* data, int sizeInB
         juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass0Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(),
                                                              apvts.getRawParameterValue("lowPassCutoff0")->load(),
                                                              apvts.getRawParameterValue("lowPassQ0")->load());
+        juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass1Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(),
+                                                             apvts.getRawParameterValue("lowPassCutoff1")->load(),
+                                                             apvts.getRawParameterValue("lowPassQ1")->load());
+        juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass2Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(),
+                                                             apvts.getRawParameterValue("lowPassCutoff2")->load(),
+                                                             apvts.getRawParameterValue("lowPassQ2")->load());
+        juce::dsp::IIR::Filter<float>::CoefficientsPtr lowPass3Coefficients = juce::dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(),
+                                                             apvts.getRawParameterValue("lowPassCutoff3")->load(),
+                                                             apvts.getRawParameterValue("lowPassQ3")->load());
         //then, pass these coefficients to each audio channel
         *leftChain.get<0>().coefficients = *lowPass0Coefficients;
         *rightChain.get<0>().coefficients = *lowPass0Coefficients;
+        *leftChain.get<1>().coefficients = *lowPass1Coefficients;
+        *rightChain.get<1>().coefficients = *lowPass1Coefficients;
+        *leftChain.get<2>().coefficients = *lowPass2Coefficients;
+        *rightChain.get<2>().coefficients = *lowPass2Coefficients;
+        *leftChain.get<3>().coefficients = *lowPass3Coefficients;
+        *rightChain.get<3>().coefficients = *lowPass3Coefficients;
     }
     else
     {

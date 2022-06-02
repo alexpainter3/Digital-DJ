@@ -60,9 +60,10 @@ public:
 private:
     using Filter = juce::dsp::IIR::Filter<float>;
     
+    //TODO - enumerate chain elements once we add high pass filters
     //chain together filters so that a single process call to the chain can
     //iteratively process the audio through each chain element
-    using FilterChain = juce::dsp::ProcessorChain<Filter>;
+    using FilterChain = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
     
     //one filter chain per audio channel
     FilterChain leftChain;
